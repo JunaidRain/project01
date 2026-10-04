@@ -14,6 +14,7 @@ import html2pdf from 'html2pdf.js';
 let resumeData = loadLocalDraft();
 let currentUser = null;
 let pendingActionAfterAuth = null;
+let currentTheme = localStorage.getItem('theme_mode') || 'dark';
 
 // DOM Elements
 const renderContainer = document.getElementById('resume-render-container');
@@ -21,6 +22,11 @@ const templateSelect = document.getElementById('template-select');
 const colorPickers = document.querySelectorAll('.color-picker-btn');
 const downloadPdfBtn = document.getElementById('download-pdf-btn');
 const toastBanner = document.getElementById('toast-banner');
+
+// Theme Elements
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+const themeToggleIcon = document.getElementById('theme-toggle-icon');
+const themeToggleText = document.getElementById('theme-toggle-text');
 
 // Mobile View Switcher Elements
 const editorSidebar = document.getElementById('editor-sidebar');
@@ -74,11 +80,28 @@ const addProjBtn = document.getElementById('add-proj-btn');
 ============================================================= */
 
 function initApp() {
+  applyTheme(currentTheme);
   populateFormFields();
   renderPreview();
   setupEventListeners();
   setupMobileSwitcher();
   checkSession();
+}
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.body.setAttribute('data-theme', theme);
+  localStorage.setItem('theme_mode', theme);
+
+  if (themeToggleIcon && themeToggleText) {
+    if (theme === 'light') {
+      themeToggleIcon.textContent = '🌙';
+      themeToggleText.textContent = 'Dark';
+    } else {
+      themeToggleIcon.textContent = '☀️';
+      themeToggleText.textContent = 'Light';
+    }
+  }
 }
 
 function showToast(message, duration = 4000) {
@@ -107,7 +130,6 @@ function setupMobileSwitcher() {
     if (editorSidebar) editorSidebar.classList.add('mobile-hidden');
   });
 
-  // Reset visibility if window resizes above 992px
   window.addEventListener('resize', () => {
     if (window.innerWidth > 992) {
       if (editorSidebar) editorSidebar.classList.remove('mobile-hidden');
@@ -155,10 +177,8 @@ function populateFormFields() {
 function renderPreview() {
   if (!renderContainer) return;
   
-  // Render Template HTML
   renderContainer.innerHTML = renderResumeHTML(resumeData, resumeData.template || 'modern');
   
-  // Enable Contenteditable & Bidirectional Sync
   const editableElements = renderContainer.querySelectorAll('.editable');
   editableElements.forEach(el => {
     el.setAttribute('contenteditable', 'true');
@@ -208,7 +228,6 @@ function updateFieldByPath(path, value) {
       }
     }
   } else {
-    // Personal info
     if (!resumeData.personalInfo) resumeData.personalInfo = {};
     resumeData.personalInfo[path] = value;
   }
@@ -309,6 +328,14 @@ function renderProjRepeaters() {
 ============================================================= */
 
 function setupEventListeners() {
+  // Theme Toggle Event Listener
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme);
+    });
+  }
+
   // Personal Info Form Updates
   [inputFullName, inputJobTitle, inputAge, inputPhone, inputEmail, inputLocation, inputPhotoUrl, inputSummary].forEach(input => {
     if (!input) return;
@@ -593,10 +620,8 @@ async function executePDFDownload() {
   };
 
   try {
-    // Generate PDF Blob
     const pdfBlob = await html2pdf().set(opt).from(paperElement).output('blob');
 
-    // Trigger local download to user's machine
     const downloadUrl = URL.createObjectURL(pdfBlob);
     const a = document.createElement('a');
     a.href = downloadUrl;
@@ -605,7 +630,6 @@ async function executePDFDownload() {
     a.click();
     document.body.removeChild(a);
 
-    // Save resume content AND PDF blob to Supabase Storage & Database
     if (currentUser) {
       await saveResumeToSupabase(currentUser, resumeData, pdfBlob);
       showToast('✅ Resume PDF downloaded & saved to your Supabase account!');
@@ -697,21 +721,21 @@ async function handleSignupClick() {
 async function openSavedResumesModal() {
   if (!currentUser) return;
 
-  savedResumesList.innerHTML = '<p style="color: #94a3b8; font-size: 0.875rem;">Loading saved resumes from Supabase...</p>';
+  savedResumesList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.875rem;">Loading saved resumes from Supabase...</p>';
   savedModal.classList.add('active');
 
   const resumes = await fetchUserResumesFromSupabase(currentUser);
 
   if (!resumes || resumes.length === 0) {
-    savedResumesList.innerHTML = '<p style="color: #94a3b8; font-size: 0.875rem;">No saved resumes found yet. Save your current draft by downloading PDF!</p>';
+    savedResumesList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.875rem;">No saved resumes found yet. Save your current draft by downloading PDF!</p>';
     return;
   }
 
   savedResumesList.innerHTML = resumes.map((r, idx) => `
-    <div style="background: rgba(2, 6, 23, 0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
       <div>
-        <strong style="color: #f8fafc; font-size: 0.9375rem;">${r.personalInfo?.fullName || 'Untitled'} - ${r.personalInfo?.jobTitle || 'Resume'}</strong>
-        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem;">Template: ${r.template || 'Modern'}</div>
+        <strong style="color: var(--text-main); font-size: 0.9375rem;">${r.personalInfo?.fullName || 'Untitled'} - ${r.personalInfo?.jobTitle || 'Resume'}</strong>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Template: ${r.template || 'Modern'}</div>
         ${r.pdfUrl ? `<a href="${r.pdfUrl}" target="_blank" style="font-size: 0.75rem; color: #34d399; margin-top: 0.25rem; display: inline-block;">📄 View Saved PDF</a>` : ''}
       </div>
       <button class="btn btn-secondary load-resume-btn" data-index="${idx}" style="padding: 0.4rem 0.85rem; font-size: 0.75rem;">Load & Edit</button>

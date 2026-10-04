@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Build modern, professional resumes instantly with live bidirectional editing and PDF download." />
-    <title>ProResume Builder | Mobile Friendly Resume Creator</title>
+    <meta name="description" content="Build modern, professional resumes instantly with live bidirectional editing, dark/light mode and PDF download." />
+    <title>ProResume Builder | Create & Sync Resumes</title>
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
@@ -21,6 +21,11 @@
       </div>
 
       <div class="header-actions">
+        <!-- Dark / Light Mode Toggle Button -->
+        <button id="theme-toggle-btn" class="btn btn-secondary" title="Toggle Light / Dark Mode">
+          <span id="theme-toggle-icon">☀️</span> <span id="theme-toggle-text">Light</span>
+        </button>
+
         <div id="user-status-badge" class="user-badge">
           <span class="user-badge-dot"></span>
           <span id="user-status-text">Free Guest Tier</span>
@@ -90,7 +95,7 @@
           <div class="form-group">
             <label for="input-photoFile">Upload Profile Picture (Image File)</label>
             <input type="file" id="input-photoFile" class="form-control" accept="image/*" style="padding: 0.4rem;" />
-            <div id="photo-upload-status" style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.35rem;"></div>
+            <div id="photo-upload-status" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;"></div>
           </div>
 
           <div class="form-group">
