@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Build modern, professional resumes instantly with live bidirectional editing and PDF download." />
+    <title>ProResume Builder | Create & Sync Resumes</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <!-- Top Header -->
+    <header class="header-bar">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+        </div>
+        <h1>ProResume Builder</h1>
+      </div>
+
+      <div class="header-actions">
+        <div id="user-status-badge" class="user-badge">
+          <span class="user-badge-dot"></span>
+          <span id="user-status-text">Free Guest Tier (1 Resume)</span>
+        </div>
+        <button id="my-resumes-btn" class="btn btn-secondary" style="display: none;">My Saved Resumes</button>
+        <button id="auth-modal-btn" class="btn btn-secondary">Sign In / Sign Up</button>
+      </div>
+    </header>
+
+    <!-- Notification Toast Banner -->
+    <div id="toast-banner" style="display: none; padding: 0.75rem 1.5rem; background: rgba(16, 185, 129, 0.15); border-bottom: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; font-size: 0.84375rem; text-align: center; font-weight: 600;">
+      <!-- Dynamic notification -->
+    </div>
+
+    <!-- Main Split Layout -->
+    <div class="app-container">
+      
+      <!-- Left Sidebar: Inputs & Repeaters -->
+      <aside class="editor-sidebar">
+        
+        <!-- Personal Info -->
+        <section class="editor-section">
+          <h3>👤 Personal Details</h3>
+
+          <div class="form-group">
+            <label for="input-fullName">Full Name</label>
+            <input type="text" id="input-fullName" class="form-control" placeholder="Alex Morgan" />
+          </div>
+
+          <div class="form-group">
+            <label for="input-jobTitle">Target Job Title</label>
+            <input type="text" id="input-jobTitle" class="form-control" placeholder="Senior Software Engineer" />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+              <label for="input-age">Age / YOE</label>
+              <input type="text" id="input-age" class="form-control" placeholder="28" />
+            </div>
+            <div class="form-group">
+              <label for="input-phone">Phone Number</label>
+              <input type="text" id="input-phone" class="form-control" placeholder="+1 555-0192" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="input-email">Email Address</label>
+            <input type="email" id="input-email" class="form-control" placeholder="alex@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label for="input-location">Location (City, Country)</label>
+            <input type="text" id="input-location" class="form-control" placeholder="San Francisco, CA" />
+          </div>
+
+          <!-- Photo File Upload & URL -->
+          <div class="form-group">
+            <label for="input-photoFile">Upload Profile Picture (Image File)</label>
+            <input type="file" id="input-photoFile" class="form-control" accept="image/*" style="padding: 0.4rem;" />
+            <div id="photo-upload-status" style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.35rem;"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="input-photoUrl">Or Image URL</label>
+            <input type="text" id="input-photoUrl" class="form-control" placeholder="https://..." />
+          </div>
+
+          <div class="form-group">
+            <label for="input-summary">Professional Summary</label>
+            <textarea id="input-summary" class="form-control" placeholder="Brief summary of your expertise..."></textarea>
+          </div>
+        </section>
+
+        <!-- Work Experience Repeater -->
+        <section class="editor-section">
+          <div class="section-header-row">
+            <h3>💼 Work Experience</h3>
+            <button id="add-exp-btn" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">+ Add</button>
+          </div>
+          <div id="exp-repeater-container"></div>
+        </section>
+
+        <!-- Education Repeater -->
+        <section class="editor-section">
+          <div class="section-header-row">
+            <h3>🎓 Education & Qualifications</h3>
+            <button id="add-edu-btn" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">+ Add</button>
+          </div>
+          <div id="edu-repeater-container"></div>
+        </section>
+
+        <!-- Skills Tag Manager -->
+        <section class="editor-section">
+          <h3>⚡ Skills & Technologies</h3>
+          <div class="form-group">
+            <label for="input-skills">Skills (separated by commas)</label>
+            <input type="text" id="input-skills" class="form-control" placeholder="React, Node.js, Python, Supabase, SQL" />
+          </div>
+        </section>
+
+        <!-- Projects Repeater -->
+        <section class="editor-section">
+          <div class="section-header-row">
+            <h3>🚀 Key Projects</h3>
+            <button id="add-proj-btn" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">+ Add</button>
+          </div>
+          <div id="proj-repeater-container"></div>
+        </section>
+
+      </aside>
+
+      <!-- Right Area: Live Preview & Toolbar -->
+      <main class="preview-area">
+        
+        <!-- Controls Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-group">
+            <label for="template-select" style="font-size: 0.8125rem; font-weight: 700; color: var(--text-muted);">TEMPLATE:</label>
+            <select id="template-select" class="form-control" style="width: auto; padding: 0.4rem 0.75rem;">
+              <option value="modern">Modern Executive</option>
+              <option value="classic">Classic Plain</option>
+              <option value="tech">Tech Developer</option>
+              <option value="creative">Creative Gradient</option>
+              <option value="swiss">Swiss Minimalist</option>
+              <option value="navy">Corporate Navy</option>
+              <option value="emerald">Emerald Elegant</option>
+              <option value="compact">Compact One-Page</option>
+            </select>
+          </div>
+
+          <div class="toolbar-group">
+            <span style="font-size: 0.8125rem; font-weight: 700; color: var(--text-muted);">ACCENT:</span>
+            <div id="color-pickers" style="display: flex; gap: 0.35rem;">
+              <button class="color-picker-btn active" data-color="#6366f1" style="background: #6366f1;"></button>
+              <button class="color-picker-btn" data-color="#10b981" style="background: #10b981;"></button>
+              <button class="color-picker-btn" data-color="#06b6d4" style="background: #06b6d4;"></button>
+              <button class="color-picker-btn" data-color="#e11d48" style="background: #e11d48;"></button>
+              <button class="color-picker-btn" data-color="#1e3a8a" style="background: #1e3a8a;"></button>
+              <button class="color-picker-btn" data-color="#d97706" style="background: #d97706;"></button>
+            </div>
+          </div>
+
+          <button id="download-pdf-btn" class="btn btn-success">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download PDF
+          </button>
+        </div>
+
+        <!-- Live Resume Paper Container -->
+        <div class="resume-viewport">
+          <div id="resume-render-container" style="width: 100%;"></div>
+        </div>
+
+      </main>
+
+    </div>
+
+    <!-- AUTH MODAL FOR GATED DOWNLOAD & MULTI-RESUME -->
+    <div id="auth-modal" class="modal-overlay">
+      <div class="modal-card">
+        <button id="close-auth-modal" class="modal-close">&times;</button>
+        <h3 id="auth-modal-title" style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center;">Sign In to Download PDF</h3>
+        <p id="auth-modal-sub" style="font-size: 0.84375rem; color: var(--text-muted); text-align: center; margin-bottom: 1.5rem;">
+          Creating a free account unlocks high-resolution PDF exports, image uploads & saved resumes!
+        </p>
+
+        <form id="auth-modal-form">
+          <div class="form-group">
+            <label for="modal-email">Email Address</label>
+            <input type="email" id="modal-email" class="form-control" placeholder="your.email@example.com" required />
+          </div>
+
+          <div class="form-group">
+            <label for="modal-password">Password</label>
+            <input type="password" id="modal-password" class="form-control" placeholder="••••••••" required />
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+            <button type="submit" id="modal-signin-btn" class="btn btn-primary" style="flex: 1;">Sign In</button>
+            <button type="button" id="modal-signup-btn" class="btn btn-secondary" style="flex: 1;">Sign Up</button>
+          </div>
+        </form>
+
+        <div id="modal-auth-msg" style="margin-top: 1rem; font-size: 0.8125rem; text-align: center;"></div>
+      </div>
+    </div>
+
+    <!-- SAVED RESUMES MODAL -->
+    <div id="saved-modal" class="modal-overlay">
+      <div class="modal-card" style="max-width: 560px;">
+        <button id="close-saved-modal" class="modal-close">&times;</button>
+        <h3 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem;">My Saved Resumes</h3>
+        <p style="font-size: 0.84375rem; color: var(--text-muted); margin-bottom: 1.5rem;">Manage your saved resume versions on Supabase.</p>
+
+        <div id="saved-resumes-list" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 300px; overflow-y: auto;">
+          <!-- Loaded dynamically -->
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: right;">
+          <button id="create-new-resume-btn" class="btn btn-primary">+ Create New Resume</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
