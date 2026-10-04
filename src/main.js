@@ -22,6 +22,12 @@ const colorPickers = document.querySelectorAll('.color-picker-btn');
 const downloadPdfBtn = document.getElementById('download-pdf-btn');
 const toastBanner = document.getElementById('toast-banner');
 
+// Mobile View Switcher Elements
+const editorSidebar = document.getElementById('editor-sidebar');
+const previewArea = document.getElementById('preview-area');
+const toggleFormBtn = document.getElementById('toggle-form-btn');
+const togglePreviewBtn = document.getElementById('toggle-preview-btn');
+
 // Header & Auth Elements
 const authModalBtn = document.getElementById('auth-modal-btn');
 const myResumesBtn = document.getElementById('my-resumes-btn');
@@ -71,6 +77,7 @@ function initApp() {
   populateFormFields();
   renderPreview();
   setupEventListeners();
+  setupMobileSwitcher();
   checkSession();
 }
 
@@ -81,6 +88,40 @@ function showToast(message, duration = 4000) {
   setTimeout(() => {
     toastBanner.style.display = 'none';
   }, duration);
+}
+
+function setupMobileSwitcher() {
+  if (!toggleFormBtn || !togglePreviewBtn) return;
+
+  toggleFormBtn.addEventListener('click', () => {
+    toggleFormBtn.classList.add('active');
+    togglePreviewBtn.classList.remove('active');
+    if (editorSidebar) editorSidebar.classList.remove('mobile-hidden');
+    if (previewArea) previewArea.classList.add('mobile-hidden');
+  });
+
+  togglePreviewBtn.addEventListener('click', () => {
+    togglePreviewBtn.classList.add('active');
+    toggleFormBtn.classList.remove('active');
+    if (previewArea) previewArea.classList.remove('mobile-hidden');
+    if (editorSidebar) editorSidebar.classList.add('mobile-hidden');
+  });
+
+  // Reset visibility if window resizes above 992px
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 992) {
+      if (editorSidebar) editorSidebar.classList.remove('mobile-hidden');
+      if (previewArea) previewArea.classList.remove('mobile-hidden');
+    } else {
+      if (toggleFormBtn.classList.contains('active')) {
+        if (editorSidebar) editorSidebar.classList.remove('mobile-hidden');
+        if (previewArea) previewArea.classList.add('mobile-hidden');
+      } else {
+        if (previewArea) previewArea.classList.remove('mobile-hidden');
+        if (editorSidebar) editorSidebar.classList.add('mobile-hidden');
+      }
+    }
+  });
 }
 
 function populateFormFields() {
@@ -566,7 +607,7 @@ async function executePDFDownload() {
 
     // Save resume content AND PDF blob to Supabase Storage & Database
     if (currentUser) {
-      const syncResult = await saveResumeToSupabase(currentUser, resumeData, pdfBlob);
+      await saveResumeToSupabase(currentUser, resumeData, pdfBlob);
       showToast('✅ Resume PDF downloaded & saved to your Supabase account!');
     }
   } catch (err) {

@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Build modern, professional resumes instantly with live bidirectional editing and PDF download." />
-    <title>ProResume Builder | Create & Sync Resumes</title>
+    <title>ProResume Builder | Mobile Friendly Resume Creator</title>
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
@@ -23,12 +23,22 @@
       <div class="header-actions">
         <div id="user-status-badge" class="user-badge">
           <span class="user-badge-dot"></span>
-          <span id="user-status-text">Free Guest Tier (1 Resume)</span>
+          <span id="user-status-text">Free Guest Tier</span>
         </div>
         <button id="my-resumes-btn" class="btn btn-secondary" style="display: none;">My Saved Resumes</button>
         <button id="auth-modal-btn" class="btn btn-secondary">Sign In / Sign Up</button>
       </div>
     </header>
+
+    <!-- Mobile View Switcher Bar (Appears on screens <= 992px) -->
+    <div class="mobile-view-toggle">
+      <button id="toggle-form-btn" class="mobile-toggle-btn active">
+        ✏️ Edit Form
+      </button>
+      <button id="toggle-preview-btn" class="mobile-toggle-btn">
+        👁️ Live Preview & Download
+      </button>
+    </div>
 
     <!-- Notification Toast Banner -->
     <div id="toast-banner" style="display: none; padding: 0.75rem 1.5rem; background: rgba(16, 185, 129, 0.15); border-bottom: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; font-size: 0.84375rem; text-align: center; font-weight: 600;">
@@ -39,7 +49,7 @@
     <div class="app-container">
       
       <!-- Left Sidebar: Inputs & Repeaters -->
-      <aside class="editor-sidebar">
+      <aside id="editor-sidebar" class="editor-sidebar">
         
         <!-- Personal Info -->
         <section class="editor-section">
@@ -133,7 +143,7 @@
       </aside>
 
       <!-- Right Area: Live Preview & Toolbar -->
-      <main class="preview-area">
+      <main id="preview-area" class="preview-area mobile-hidden">
         
         <!-- Controls Toolbar -->
         <div class="toolbar">
